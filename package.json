@@ -3,10 +3,31 @@
     "test": "npx playwright test",
     "test:headed": "npx playwright test --headed",
     "test:ui": "npx playwright test --ui",
+    "test:ci": "npx playwright test --shard=1/4 --reporter=html,json --output=test-results",
+    "test:ci:all": "npx playwright test --reporter=html,json --output=test-results",
+    "test:ci:shard": "npx playwright test --shard=$SHARD_TOTAL/$SHARD_INDEX --reporter=html,json --output=test-results",
+    "test:smoke": "npx playwright test --grep @smoke --reporter=html",
+    "test:regression": "npx playwright test --grep @regression --reporter=html",
+    "test:critical": "npx playwright test --grep @critical --reporter=html",
+    "test:failed": "npx playwright test --last-failed",
     
     "auth:setup": "npx playwright test tests/auth/setup.spec.ts --headed --timeout=120000",
+    "auth:setup:ci": "npx playwright test tests/auth/setup.spec.ts --timeout=120000 --reporter=line",
     "auth:setup:auto": "npx playwright test tests/auth/setup-auto.spec.ts --headed --timeout=120000",
+    "auth:setup:auto:ci": "npx playwright test tests/auth/setup-auto.spec.ts --timeout=120000 --reporter=line",
     "auth:clear": "node -e \"const fs=require('fs'); try { fs.rmSync('playwright/.auth/storageState.json', {force: true}); console.log('✅ Auth cleared'); } catch(e) { console.log('No auth file found'); }\"",
-    "auth:check": "node -e \"const fs=require('fs'); console.log(fs.existsSync('playwright/.auth/storageState.json') ? '✅ Auth exists' : '❌ No auth found')\""
+    "auth:check": "node -e \"const fs=require('fs'); console.log(fs.existsSync('playwright/.auth/storageState.json') ? '✅ Auth exists' : '❌ No auth found'); process.exit(fs.existsSync('playwright/.auth/storageState.json') ? 0 : 1)\"",
+    "auth:validate": "npx playwright test tests/auth/validate.spec.ts",
+    
+    "report:open": "npx playwright show-report",
+    "report:merge": "npx playwright merge-reports --reporter=html ./test-results",
+    
+    "codegen": "npx playwright codegen https://staging.onebookx.com",
+    "debug": "npx playwright test --debug",
+    "trace": "npx playwright test --trace on",
+    
+    "prepare:ci": "npm run auth:clear && npm run auth:setup:ci",
+    "clean": "rm -rf test-results playwright-report test-results.json",
+    "clean:win": "rmdir /s /q test-results playwright-report test-results.json 2>nul || echo \"Clean complete\""
   }
 }
