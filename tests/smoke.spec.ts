@@ -1,58 +1,22 @@
 import { test, expect } from '@playwright/test';
 import { HomePage } from '../pages/HomePage';
-import { AuthHelper } from './utils/auth';
 
 test.describe('Onebookx - Smoke Tests', () => {
   let homePage: HomePage;
 
-  test.beforeEach(async ({ page, context }) => {
-    // Load saved cookies
-    const savedState = AuthHelper.loadStorageState();
-    
-    if (savedState && savedState.cookies && savedState.cookies.length > 0) {
-      console.log(`🍪 Found ${savedState.cookies.length} saved cookies`);
-      
-      // Clear existing cookies and add saved ones
-      await context.clearCookies();
-      await context.addCookies(savedState.cookies);
-      console.log('✅ Cookies added to context');
-      
-      // Log what cookies were added
-      savedState.cookies.forEach((cookie: any) => {
-        console.log(`   - ${cookie.name} (${cookie.domain})`);
-      });
-    } else {
-      console.log('ℹ️ No saved cookies found - running as guest');
-    }
-    
+  test.beforeEach(async ({ page }) => {
     homePage = new HomePage(page);
-    
-    // Navigate to home page with proper wait
-    await page.goto('https://staging.onebookx.com');
+    await page.goto('https://staging.onebookx.com', { timeout: 30000 });
     await page.waitForTimeout(2000);
-    
-    // Check if we're logged in
-    const currentUrl = page.url();
-    if (currentUrl.includes('login') || currentUrl.includes('verify')) {
-      console.log('⚠️ Still on login page - cookies may be invalid or expired');
-    } else {
-      console.log('✅ Successfully loaded home page with cookies');
-    }
   });
 
-  // Save auth after each test
-  test.afterEach(async ({ page }) => {
-    const cookies = await page.context().cookies();
-    if (cookies.length > 0) {
-      await AuthHelper.saveStorageState(page.context());
-      console.log(`✅ Auth saved! (${cookies.length} cookies)`);
-    }
-  });
-
+  // ============================================
+  // 1. PAGE LOAD TESTS
+  // ============================================
   test.describe('Page Load Tests', () => {
     test('should load the home page successfully', async ({ page }) => {
       await page.waitForTimeout(1000);
-      await expect(page).toHaveURL('https://staging.onebookx.com/');
+      await expect(page).toHaveURL('https://staging.onebookx.com/', { timeout: 30000 });
       await expect(homePage.brand).toBeVisible();
     });
 
@@ -70,6 +34,9 @@ test.describe('Onebookx - Smoke Tests', () => {
     });
   });
 
+  // ============================================
+  // 2. HERO SECTION TESTS
+  // ============================================
   test.describe('Hero Section Tests', () => {
     test('should display hero badge with correct text', async () => {
       const badgeText = await homePage.getBadgeText();
@@ -110,6 +77,9 @@ test.describe('Onebookx - Smoke Tests', () => {
     });
   });
 
+  // ============================================
+  // 3. NAVIGATION TESTS
+  // ============================================
   test.describe('Navigation Tests', () => {
     test('should have navigation buttons visible', async () => {
       await expect(homePage.navHome).toBeVisible();
@@ -127,14 +97,14 @@ test.describe('Onebookx - Smoke Tests', () => {
       await expect(page).toHaveURL(/.*signup/);
     });
 
-    test('should navigate to home from login page', async ({ page }) => {
+    test('should navigate from login to home', async ({ page }) => {
       await homePage.clickNavLogin();
       await page.waitForURL(/.*login/);
       await homePage.clickNavHome();
       await expect(page).toHaveURL('/');
     });
 
-    test('should navigate to signup from login page', async ({ page }) => {
+    test('should navigate from login to signup', async ({ page }) => {
       await homePage.clickNavLogin();
       await page.waitForURL(/.*login/);
       await homePage.clickNavSignup();
@@ -149,6 +119,9 @@ test.describe('Onebookx - Smoke Tests', () => {
     });
   });
 
+  // ============================================
+  // 4. STEPS SECTION TESTS
+  // ============================================
   test.describe('Steps Section Tests', () => {
     test('should display steps section with correct title', async () => {
       const title = await homePage.stepsTitle.textContent();
@@ -186,6 +159,9 @@ test.describe('Onebookx - Smoke Tests', () => {
     });
   });
 
+  // ============================================
+  // 5. FEATURES SECTION TESTS
+  // ============================================
   test.describe('Features Section Tests', () => {
     test('should display 5 feature cards', async () => {
       const featureCount = await homePage.getFeatureCount();
@@ -227,6 +203,9 @@ test.describe('Onebookx - Smoke Tests', () => {
     });
   });
 
+  // ============================================
+  // 6. BOTTOM CTA TESTS
+  // ============================================
   test.describe('Bottom CTA Tests', () => {
     test('should display bottom CTA section', async () => {
       await expect(homePage.ctaBottom).toBeVisible();
@@ -253,6 +232,9 @@ test.describe('Onebookx - Smoke Tests', () => {
     });
   });
 
+  // ============================================
+  // 7. INTERACTIVE TESTS
+  // ============================================
   test.describe('Interactive Tests', () => {
     test('should navigate to signup when clicking CTA', async ({ page }) => {
       await homePage.clickGetStarted();
@@ -270,29 +252,77 @@ test.describe('Onebookx - Smoke Tests', () => {
     });
   });
 
+  // ============================================
+  // 8. DARK MODE TESTS
+  // ============================================
   test.describe('Dark Mode Tests', () => {
+    test.beforeEach(async () => {
+      await homePage.ensureLightMode();
+    });
+
     test('should have dark mode toggle visible', async () => {
       await expect(homePage.darkModeToggle).toBeVisible();
     });
 
-    test('should toggle dark mode on click', async ({ page }) => {
-      const initialDark = await homePage.isDarkModeEnabled();
-      expect(initialDark).toBe(false);
+    test('should start in light mode', async () => {
+      const initialTheme = await homePage.getCurrentTheme();
+      expect(initialTheme).toBe('light');
+      
+      const initialIcon = await homePage.getDarkModeIconText();
+      expect(initialIcon).toBe('dark_mode');
+    });
 
+    test('should toggle from light to dark mode', async () => {
+      const beforeTheme = await homePage.getCurrentTheme();
+      expect(beforeTheme).toBe('light');
+      
       await homePage.toggleDarkMode();
-      await page.waitForTimeout(300);
+      await homePage.wait(500);
+      
+      const afterTheme = await homePage.getCurrentTheme();
+      expect(afterTheme).toBe('dark');
+      
+      const afterIcon = await homePage.getDarkModeIconText();
+      expect(afterIcon).toBe('light_mode');
+    });
 
-      const afterToggleDark = await homePage.isDarkModeEnabled();
-      expect(afterToggleDark).toBe(true);
-
+    test('should toggle from dark to light mode', async () => {
       await homePage.toggleDarkMode();
-      await page.waitForTimeout(300);
+      await homePage.wait(500);
+      
+      const beforeTheme = await homePage.getCurrentTheme();
+      expect(beforeTheme).toBe('dark');
+      
+      await homePage.toggleDarkMode();
+      await homePage.wait(500);
+      
+      const afterTheme = await homePage.getCurrentTheme();
+      expect(afterTheme).toBe('light');
+      
+      const afterIcon = await homePage.getDarkModeIconText();
+      expect(afterIcon).toBe('dark_mode');
+    });
 
-      const finalDark = await homePage.isDarkModeEnabled();
-      expect(finalDark).toBe(false);
+    test('should maintain correct theme state', async () => {
+      await homePage.ensureLightMode();
+      
+      await homePage.toggleDarkMode();
+      await homePage.wait(300);
+      
+      let isDark = await homePage.isDarkModeEnabled();
+      expect(isDark).toBe(true);
+      
+      await homePage.toggleDarkMode();
+      await homePage.wait(300);
+      
+      isDark = await homePage.isDarkModeEnabled();
+      expect(isDark).toBe(false);
     });
   });
 
+  // ============================================
+  // 9. MOBILE RESPONSIVE TESTS
+  // ============================================
   test.describe('Mobile Responsive Tests', () => {
     test('should display mobile menu on smaller screens', async ({ page }) => {
       await page.setViewportSize({ width: 375, height: 812 });
@@ -306,31 +336,6 @@ test.describe('Onebookx - Smoke Tests', () => {
       await page.goto('https://staging.onebookx.com');
       await page.waitForTimeout(1000);
       await expect(homePage.desktopNav).toBeVisible();
-    });
-  });
-
-  test.describe('Authentication State Tests', () => {
-    test('should have authentication state loaded', async () => {
-      const hasAuth = AuthHelper.hasStorageState();
-      if (hasAuth) {
-        console.log('✅ Authentication state loaded for tests');
-        const authPath = AuthHelper.getStoragePath();
-        console.log(`📁 Auth file: ${authPath}`);
-      } else {
-        console.log('ℹ️ No authentication state found - running as guest');
-      }
-    });
-
-    test('should maintain auth across test cases', async ({ page }) => {
-      const cookies = await page.context().cookies();
-      if (cookies.length > 0) {
-        console.log(`🍪 Found ${cookies.length} cookies in context`);
-        cookies.forEach((cookie: any) => {
-          console.log(`   - ${cookie.name}: ${cookie.value.substring(0, 20)}...`);
-        });
-      } else {
-        console.log('ℹ️ No cookies found - running as guest');
-      }
     });
   });
 });

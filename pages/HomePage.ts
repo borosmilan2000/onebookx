@@ -2,103 +2,64 @@ import { Page, Locator } from '@playwright/test';
 import { BasePage } from './BasePage';
 
 export class HomePage extends BasePage {
-  // Hero section
   readonly heroSection: Locator;
   readonly heroBadge: Locator;
-  readonly heroBadgeIcon: Locator;
-  readonly heroBadgeText: Locator;
   readonly heroTitle: Locator;
-  readonly heroAccent: Locator;
   readonly heroSubtitle: Locator;
   readonly heroActions: Locator;
+  
   readonly ctaButton: Locator;
   readonly ctaButtonIcon: Locator;
-  readonly ctaButtonText: Locator;
   readonly loginButton: Locator;
-
-  // Navigation buttons
-  readonly navHome: Locator;
-  readonly navLogin: Locator;
-  readonly navSignup: Locator;
-
-  // Steps section
+  
   readonly stepsSection: Locator;
   readonly stepsTitle: Locator;
-  readonly stepCards: Locator;
-
-  // Features section
+  readonly steps: Locator;
+  
   readonly featuresSection: Locator;
-  readonly featureCards: Locator;
-
-  // Bottom CTA
+  readonly features: Locator;
+  
   readonly ctaBottom: Locator;
   readonly ctaBottomTitle: Locator;
   readonly ctaBottomSubtitle: Locator;
   readonly ctaBottomButton: Locator;
+  
+  readonly navHome: Locator;
+  readonly navLogin: Locator;
+  readonly navSignup: Locator;
 
   constructor(page: Page) {
     super(page);
 
-    // Hero section
     this.heroSection = page.locator('.hero');
     this.heroBadge = page.locator('.hero-badge');
-    this.heroBadgeIcon = page.locator('.hero-badge mat-icon');
-    this.heroBadgeText = page.locator('.hero-badge span');
     this.heroTitle = page.locator('.hero-title');
-    this.heroAccent = page.locator('.hero-accent');
     this.heroSubtitle = page.locator('.hero-sub');
     this.heroActions = page.locator('.hero-actions');
-    this.ctaButton = page.locator('.hero-actions .cta-btn');
-    this.ctaButtonIcon = page.locator('.hero-actions .cta-btn mat-icon');
-    this.ctaButtonText = page.locator('.hero-actions .cta-btn .mdc-button__label');
-    this.loginButton = page.locator('.hero-actions .login-btn');
-
-    // Navigation buttons
-    this.navHome = page.locator('.nav-links button:has-text("Főoldal")');
-    this.navLogin = page.locator('.nav-links button:has-text("Bejelentkezés")');
-    this.navSignup = page.locator('.nav-links button:has-text("Regisztráció")');
-
-    // Steps section
+    
+    this.ctaButton = page.locator('.cta-btn');
+    this.ctaButtonIcon = page.locator('.cta-btn mat-icon');
+    this.loginButton = page.locator('.login-btn');
+    
     this.stepsSection = page.locator('.steps-section');
     this.stepsTitle = page.locator('.steps-title');
-    this.stepCards = page.locator('.step');
-
-    // Features section
+    this.steps = page.locator('.step');
+    
     this.featuresSection = page.locator('.features');
-    this.featureCards = page.locator('.feature-card');
-
-    // Bottom CTA
+    this.features = page.locator('.feature-card');
+    
     this.ctaBottom = page.locator('.cta-bottom');
     this.ctaBottomTitle = page.locator('.cta-bottom h2');
     this.ctaBottomSubtitle = page.locator('.cta-bottom p');
     this.ctaBottomButton = page.locator('.cta-bottom .cta-btn');
+    
+    this.navHome = page.locator('.nav-links button:has-text("Főoldal")');
+    this.navLogin = page.locator('.nav-links button:has-text("Bejelentkezés")');
+    this.navSignup = page.locator('.nav-links button:has-text("Regisztráció")');
   }
 
-  async goto() {
-    await this.page.goto('https://staging.onebookx.com');
-    await this.waitForLoad();
-  }
-
-  // Navigation methods
-  async clickNavHome() {
-    await this.navHome.click();
-  }
-
-  async clickNavLogin() {
-    await this.navLogin.click();
-  }
-
-  async clickNavSignup() {
-    await this.navSignup.click();
-  }
-
-  // Hero section methods
-  async clickGetStarted() {
-    await this.ctaButton.click();
-  }
-
-  async clickLogin() {
-    await this.loginButton.click();
+  async getBadgeText(): Promise<string> {
+    return await this.heroBadge.textContent() || '';
   }
 
   async getHeroTitleText(): Promise<string> {
@@ -109,59 +70,42 @@ export class HomePage extends BasePage {
     return await this.heroSubtitle.textContent() || '';
   }
 
-  async getBadgeText(): Promise<string> {
-    return await this.heroBadgeText.textContent() || '';
-  }
-
-  // Steps section methods
   async getStepCount(): Promise<number> {
-    return await this.stepCards.count();
+    return await this.steps.count();
   }
 
-  async getStepNumber(stepIndex: number): Promise<string> {
-    const step = this.stepCards.nth(stepIndex);
-    const num = step.locator('.step-num');
-    return await num.textContent() || '';
+  async getStepNumber(index: number): Promise<string> {
+    const step = this.steps.nth(index);
+    return await step.locator('.step-num').textContent() || '';
   }
 
-  async getStepTitle(stepIndex: number): Promise<string> {
-    const step = this.stepCards.nth(stepIndex);
-    const title = step.locator('h3');
-    return await title.textContent() || '';
+  async getStepTitle(index: number): Promise<string> {
+    const step = this.steps.nth(index);
+    return await step.locator('.step-body h3').textContent() || '';
   }
 
-  async getStepDescription(stepIndex: number): Promise<string> {
-    const step = this.stepCards.nth(stepIndex);
-    const desc = step.locator('p');
-    return await desc.textContent() || '';
+  async getStepDescription(index: number): Promise<string> {
+    const step = this.steps.nth(index);
+    return await step.locator('.step-body p').textContent() || '';
   }
 
-  // Features section methods
   async getFeatureCount(): Promise<number> {
-    return await this.featureCards.count();
+    return await this.features.count();
   }
 
-  async getFeatureTitle(featureIndex: number): Promise<string> {
-    const card = this.featureCards.nth(featureIndex);
-    const title = card.locator('h3');
-    return await title.textContent() || '';
+  async getFeatureTitle(index: number): Promise<string> {
+    const feature = this.features.nth(index);
+    return await feature.locator('.feature-body h3').textContent() || '';
   }
 
-  async getFeatureDescription(featureIndex: number): Promise<string> {
-    const card = this.featureCards.nth(featureIndex);
-    const desc = card.locator('p');
-    return await desc.textContent() || '';
+  async getFeatureDescription(index: number): Promise<string> {
+    const feature = this.features.nth(index);
+    return await feature.locator('.feature-body p').textContent() || '';
   }
 
-  async getFeatureIcon(featureIndex: number): Promise<string> {
-    const card = this.featureCards.nth(featureIndex);
-    const icon = card.locator('mat-icon');
-    return await icon.textContent() || '';
-  }
-
-  // Bottom CTA methods
-  async clickBottomCTA() {
-    await this.ctaBottomButton.click();
+  async getFeatureIcon(index: number): Promise<string> {
+    const feature = this.features.nth(index);
+    return await feature.locator('.feature-icon-wrap mat-icon').textContent() || '';
   }
 
   async getBottomCTATitle(): Promise<string> {
@@ -172,54 +116,27 @@ export class HomePage extends BasePage {
     return await this.ctaBottomSubtitle.textContent() || '';
   }
 
-  // Verification methods
-  async isHeroVisible(): Promise<boolean> {
-    return await this.heroSection.isVisible();
+  async clickNavHome(): Promise<void> {
+    await this.navHome.click();
   }
 
-  async isStepsSectionVisible(): Promise<boolean> {
-    return await this.stepsSection.isVisible();
+  async clickNavLogin(): Promise<void> {
+    await this.navLogin.click();
   }
 
-  async isFeaturesSectionVisible(): Promise<boolean> {
-    return await this.featuresSection.isVisible();
+  async clickNavSignup(): Promise<void> {
+    await this.navSignup.click();
   }
 
-  async isBottomCTAVisible(): Promise<boolean> {
-    return await this.ctaBottom.isVisible();
+  async clickGetStarted(): Promise<void> {
+    await this.ctaButton.click();
   }
 
-  async isBrandVisible(): Promise<boolean> {
-    return await this.brand.isVisible();
+  async clickLogin(): Promise<void> {
+    await this.loginButton.click();
   }
 
-  async isDarkModeToggleVisible(): Promise<boolean> {
-    return await this.darkModeToggle.isVisible();
-  }
-
-  // Navigation verification
-  async isNavHomeActive(): Promise<boolean> {
-    const classes = await this.navHome.getAttribute('class') || '';
-    return classes.includes('active');
-  }
-  async toggleDarkMode(): Promise<void> {
-  // Get current icon before click
-  const currentIcon = await this.darkModeToggle.locator('mat-icon').textContent();
-  console.log(`Current icon: ${currentIcon}`);
-  
-  await this.darkModeToggle.click();
-  
-  // Wait for theme attribute to change
-  const currentTheme = await this.getCurrentTheme();
-  const expectedTheme = currentTheme === 'light' ? 'dark' : 'light';
-  await this.waitForThemeChange(expectedTheme);
-  
-  // Verify icon changed
-  const newIcon = await this.darkModeToggle.locator('mat-icon').textContent();
-  console.log(`New icon: ${newIcon}`);
-  
-  // Verify theme changed
-  const isDark = await this.isDarkModeEnabled();
-  console.log(`Dark mode enabled: ${isDark}`);
+  async clickBottomCTA(): Promise<void> {
+    await this.ctaBottomButton.click();
   }
 }
