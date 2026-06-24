@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { HomePage } from '../pages/HomePage';
 
-test.describe('Onebookx - Smoke Tests', () => {
+test.describe('Home Page Smoke Tests', () => {
   let homePage: HomePage;
 
   test.beforeEach(async ({ page }) => {
@@ -11,7 +11,7 @@ test.describe('Onebookx - Smoke Tests', () => {
   });
 
   // ============================================
-  // 1. PAGE LOAD TESTS
+  // PAGE LOAD TESTS
   // ============================================
   test.describe('Page Load Tests', () => {
     test('should load the home page successfully', async ({ page }) => {
@@ -20,8 +20,7 @@ test.describe('Onebookx - Smoke Tests', () => {
       await expect(homePage.brand).toBeVisible();
     });
 
-    test('should have correct brand name', async ({ page }) => {
-      await page.waitForTimeout(500);
+    test('should have correct brand name', async () => {
       const brandName = await homePage.getBrandName();
       expect(brandName).toBe('onebookx');
     });
@@ -35,7 +34,7 @@ test.describe('Onebookx - Smoke Tests', () => {
   });
 
   // ============================================
-  // 2. HERO SECTION TESTS
+  // HERO SECTION TESTS
   // ============================================
   test.describe('Hero Section Tests', () => {
     test('should display hero badge with correct text', async () => {
@@ -78,7 +77,7 @@ test.describe('Onebookx - Smoke Tests', () => {
   });
 
   // ============================================
-  // 3. NAVIGATION TESTS
+  // NAVIGATION TESTS
   // ============================================
   test.describe('Navigation Tests', () => {
     test('should have navigation buttons visible', async () => {
@@ -120,7 +119,7 @@ test.describe('Onebookx - Smoke Tests', () => {
   });
 
   // ============================================
-  // 4. STEPS SECTION TESTS
+  // STEPS SECTION TESTS
   // ============================================
   test.describe('Steps Section Tests', () => {
     test('should display steps section with correct title', async () => {
@@ -160,7 +159,7 @@ test.describe('Onebookx - Smoke Tests', () => {
   });
 
   // ============================================
-  // 5. FEATURES SECTION TESTS
+  // FEATURES SECTION TESTS
   // ============================================
   test.describe('Features Section Tests', () => {
     test('should display 5 feature cards', async () => {
@@ -204,7 +203,7 @@ test.describe('Onebookx - Smoke Tests', () => {
   });
 
   // ============================================
-  // 6. BOTTOM CTA TESTS
+  // BOTTOM CTA TESTS
   // ============================================
   test.describe('Bottom CTA Tests', () => {
     test('should display bottom CTA section', async () => {
@@ -233,7 +232,7 @@ test.describe('Onebookx - Smoke Tests', () => {
   });
 
   // ============================================
-  // 7. INTERACTIVE TESTS
+  // INTERACTIVE TESTS
   // ============================================
   test.describe('Interactive Tests', () => {
     test('should navigate to signup when clicking CTA', async ({ page }) => {
@@ -253,7 +252,7 @@ test.describe('Onebookx - Smoke Tests', () => {
   });
 
   // ============================================
-  // 8. DARK MODE TESTS
+  // DARK MODE TESTS
   // ============================================
   test.describe('Dark Mode Tests', () => {
     test.beforeEach(async () => {
@@ -321,7 +320,7 @@ test.describe('Onebookx - Smoke Tests', () => {
   });
 
   // ============================================
-  // 9. MOBILE RESPONSIVE TESTS
+  // MOBILE RESPONSIVE TESTS
   // ============================================
   test.describe('Mobile Responsive Tests', () => {
     test('should display mobile menu on smaller screens', async ({ page }) => {
