@@ -3,6 +3,10 @@
                                 Complete Documentation
 ================================================================================
 
+IMPORTANT
+
+Before executing the tests make sure to be connected to the teams cloudflare
+
 TABLE OF CONTENTS
 =================
 1. Project Overview
