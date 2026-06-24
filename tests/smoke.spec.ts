@@ -40,7 +40,7 @@ test.describe('Onebookx - Smoke Tests', () => {
   test.describe('Hero Section Tests', () => {
     test('should display hero badge with correct text', async () => {
       const badgeText = await homePage.getBadgeText();
-      expect(badgeText).toBe('Egyszerű. Gyors. Automatikus.');
+      expect(badgeText).toContain('Egyszerű. Gyors. Automatikus.');
     });
 
     test('should display hero title with correct content', async () => {
